@@ -86,7 +86,7 @@ def imshow(inp, title= None):
 
 
 
-def train_model(model, criterion, optimizer, scheduler, batch_szie, num_epochs= 20):
+def train_model(model, criterion, optimizer, scheduler, batch_size, num_epochs= 20):
     since = time.time()
     
     
@@ -141,7 +141,7 @@ def train_model(model, criterion, optimizer, scheduler, batch_szie, num_epochs= 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
-                cur_acc= torch.sum(preds == labels.data).double()/batch_szie
+                cur_acc= torch.sum(preds == labels.data).double()/batch_size
                 cur_batch_ind +=1
                 print("\npreds:", preds)
                 print("label:", labels.data)
@@ -229,7 +229,8 @@ if __name__ == "__main__":
     model_conv, train_acc, valid_acc = train_model(model_conv, criterion, optimizer_conv,
                          exp_lr_scheduler, args.batch_size, num_epochs= args.epochs)
     model_conv.eval()
-    torch.save(model_conv, './covid_resnet18_epoch%d.pt' %args.epochs )
+    dir_c = args.output_path + '/covid_resnet18_epoch%d.pt' %args.epochs
+    torch.save(model_conv, dir_c )
 
 
 
