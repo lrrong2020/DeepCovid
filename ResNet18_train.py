@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt
 import copy, pickle, os, time
 import argparse
 
-
+from torch.utils.tensorboard import SummaryWriter
+from torchvision import datasets, transforms
 
 parser = argparse.ArgumentParser(description='COVID-19 Detection from X-ray Images')
 parser.add_argument('--batch_size', type=int, default=20, 
@@ -31,9 +32,21 @@ parser.add_argument('--dataset_path', type=str, default='./data/',
                       help='training and validation dataset')
 parser.add_argument('--output_path', type=str, default='./output/',
                       help='results output')
+parser.add_argument('--tb_path', type=str, default='./tensorboard/',
+                      help='tb results output')
 
 args = parser.parse_args()
 
+layout = {
+    "a": {
+        "loss": ["Multiline", ["loss/train", "loss/validation"]],
+        "accuracy": ["Multiline", ["accuracy/train", "accuracy/validation"]],
+    },
+}
+
+# Writer will output to ./runs/ directory by default
+writer_tf = SummaryWriter(args.tb_path)
+writer_tf.add_custom_scalars(layout)
 
 
 start_time= time.time()
@@ -154,7 +167,15 @@ def train_model(model, criterion, optimizer, scheduler, batch_size, num_epochs= 
                 
             epoch_loss= running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
-            
+
+            if phase == 'train':
+                writer_tf.add_scalar('accuracy/train', epoch_acc, epoch)
+                writer_tf.add_scalar('loss/train', epoch_loss, epoch)
+
+            else:
+                writer_tf.add_scalar('accuracy/validation', epoch_acc, epoch)
+                writer_tf.add_scalar('loss/validation', epoch_loss, epoch)
+                
             print('{} Loss: {:.4f} Acc: {:.4f} \n\n'.format(
                 phase, epoch_loss, epoch_acc))
 
@@ -164,7 +185,7 @@ def train_model(model, criterion, optimizer, scheduler, batch_size, num_epochs= 
                 best_epoch= epoch
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-
+                writer_tf.close()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(

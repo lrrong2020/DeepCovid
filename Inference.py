@@ -31,6 +31,8 @@ parser.add_argument('--test_non_covid_path', type=str, default='./data/test/non/
                       help='Non-COVID test samples directory')
 parser.add_argument('--trained_model_path', type=str, default='./covid_resnet18_epoch2.pt',
                       help='The path and name of trained model')
+parser.add_argument('--output_path', type=str, default='./',
+                      help='res output')
 
 parser.add_argument('--cut_off_threshold', type=float, default= 0.2, 
                     help='cut-off threshold. Any sample with probability higher than this is considered COVID-19 (default: 0.2)')
@@ -162,7 +164,10 @@ df_cm = pd.DataFrame(cnf_matrix, index = [i for i in class_names],
 
 ax = sn.heatmap(df_cm, cmap=plt.cm.Blues, annot=True, cbar=False, fmt='g', xticklabels= ['Non-COVID','COVID-2019'], yticklabels= ['Non-COVID','COVID-2019'])
 ax.set_title("Confusion matrix")
-plt.savefig('./confusion_matrix.png') #dpi = 200
+
+mtx = args.output_path + 'confusion_matrix.png'
+
+plt.savefig(mtx) #dpi = 200
 
 
 
@@ -177,7 +182,9 @@ plt.legend(loc='upper center')
 plt.subplot(212)
 plt.hist(non_prob, bins, color= 'green', label='Probabilities of Non-COVID Samples')
 plt.legend(loc='upper center')
-plt.savefig('./scores_histogram.png') #dpi = 200
+
+hh = args.output_path + 'scores_histogram.png'
+plt.savefig(hh) #dpi = 200
 
 
 
@@ -205,7 +212,9 @@ pyplot.ylabel('True Positive Rate')
 pyplot.title("ROC Curve")
 # show the legend
 pyplot.legend(loc='lower right')
-plt.savefig('./ROC_covid19.png') #dpi = 200
+
+pp = args.output_path + 'ROC_covid19.png'
+plt.savefig(pp) #dpi = 200
 
 
 
